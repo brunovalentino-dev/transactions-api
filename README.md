@@ -54,7 +54,11 @@ $ mvn clean package
 
 # Go into the configuration folder
 $ cd config/docker
+```
 
+After build the project, you MUST define your credentials for the database and visualization tool (by editing .env file in config/docker directory). Then, you can run the application:
+
+```bash
 # Run the app with Docker
 $ docker-compose up --build
 ```
