@@ -1,0 +1,54 @@
+version: '3'
+services:
+  transactions-api:
+    image: io.bvalentino/transactions-api:latest
+    build:
+      context: ../..
+      dockerfile: config/docker/Dockerfile
+    container_name: transactions-api
+    restart: on-failure
+    env_file: .env
+    depends_on:
+      - postgres
+    environment:
+      SPRING_APPLICATION_JSON: '{
+        "spring.application.name": "$SPRING_APPLICATION_NAME",
+        "spring.datasource.url": "$POSTGRES_DATASOURCE_URL",
+        "spring.datasource.username": "$POSTGRES_USER",
+        "spring.datasource.password": "$POSTGRES_PASSWORD",
+        "spring.jpa.properties.hibernate.show_sql": "$HIBERNATE_SHOW_SQL",
+        "spring.jpa.properties.hibernate.format_sql": "$HIBERNATE_FORMAT_SQL",        
+        "spring.jpa.hibernate.dialect": "$HIBERNATE_DIALECT",
+        "spring.jpa.hibernate.ddl-auto": "$HIBERNATE_DDL_AUTO",
+        "spring.output.ansi.enabled": "$SPRING_OUTPUT_ANSI_ENABLED"        
+      }'
+    ports:
+      - "8080:8080"
+
+  postgres:
+    image: "postgres"
+    container_name: "postgres"
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - POSTGRES_DB=$POSTGRES_DB
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgres
+
+  pgadmin-compose:
+    image: dpage/pgadmin4
+    container_name: "pgadmin"
+    restart: unless-stopped
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=$PGADMIN_DEFAULT_EMAIL
+      - PGADMIN_DEFAULT_PASSWORD=$PGADMIN_DEFAULT_PASSWORD
+    ports:
+      - "54321:80"
+    depends_on:
+      - postgres
+
+volumes:
+  db:
