@@ -1,6 +1,4 @@
-<h1 align="center">
-    <img alt="Pismo" src="/assets/logo.png" /> 
-    <br>
+<h1 align="center">    
     Transactions API
 </h1>
 
