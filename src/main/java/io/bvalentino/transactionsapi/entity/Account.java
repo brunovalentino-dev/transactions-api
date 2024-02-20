@@ -3,6 +3,8 @@ package io.bvalentino.transactionsapi.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "tb_accounts")
 @Getter
@@ -19,7 +21,14 @@ public class Account {
     @Column(nullable = false, length = 11)
     private String documentNumber;
 
+    @Column(nullable = false)
+    private BigDecimal availableCreditLimit;
+
     @Deprecated
     public Account() {}
+
+    public void updateLimit(BigDecimal limit) {
+        this.availableCreditLimit = limit;
+    }
 
 }

@@ -5,6 +5,7 @@ import io.bvalentino.transactionsapi.entity.Account;
 import io.bvalentino.transactionsapi.entity.OperationType;
 import io.bvalentino.transactionsapi.entity.Transaction;
 import io.bvalentino.transactionsapi.exception.AccountNotFoundException;
+import io.bvalentino.transactionsapi.exception.InsufficientLimitException;
 import io.bvalentino.transactionsapi.exception.InvalidOperationTypeException;
 import io.bvalentino.transactionsapi.repository.AccountRepository;
 import io.bvalentino.transactionsapi.repository.TransactionRepository;
@@ -69,6 +70,7 @@ class TransactionServiceImplTest {
         var account = Account.builder()
             .accountId(1L)
             .documentNumber("11122233344")
+            .availableCreditLimit(BigDecimal.valueOf(100.00))
         .build();
 
         var transaction = Transaction.builder()
@@ -87,6 +89,24 @@ class TransactionServiceImplTest {
         assertEquals("11122233344", response.getAccount().getDocumentNumber());
         assertEquals(OperationType.COMPRA_PARCELADA, response.getOperationType());
         assertEquals(BigDecimal.valueOf(-50.0), response.getAmount());
+    }
+
+    @Test
+    @DisplayName("Must throw an exception when trying to register a transaction with not enough limit.")
+    void testCase4() {
+        var request = new TransactionRequest(1L, 2L, BigDecimal.valueOf(5000.01));
+
+        var account = Account.builder()
+            .accountId(1L)
+            .documentNumber("11122233344")
+            .availableCreditLimit(BigDecimal.valueOf(5000.00))
+        .build();
+
+        when(accountRepository.findById(anyLong())).thenReturn(Optional.of(account));
+
+        var response = assertThrows(InsufficientLimitException.class, () -> transactionServiceImpl.register(request));
+
+        assertEquals("Limit not supported!", response.getMessage());
     }
 
 }

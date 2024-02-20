@@ -3,6 +3,7 @@ package io.bvalentino.transactionsapi.exception.handler;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bvalentino.transactionsapi.exception.AccountNotFoundException;
 import io.bvalentino.transactionsapi.exception.AccountRegisteredException;
+import io.bvalentino.transactionsapi.exception.InsufficientLimitException;
 import io.bvalentino.transactionsapi.exception.InvalidOperationTypeException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -67,6 +68,15 @@ public class TransactionsApiExceptionHandler {
     @ResponseStatus(NOT_FOUND)
     @ExceptionHandler(AccountNotFoundException.class)
     public ExceptionHandlerResponse accountNotFoundExceptionHandler(AccountNotFoundException ex) {
+        var map = new HashMap<String, List<String>>();
+        map.put("message", List.of(Objects.requireNonNull(ex.getMessage())));
+
+        return new ExceptionHandlerResponse(map, LocalDateTime.now());
+    }
+
+    @ResponseStatus(BAD_REQUEST)
+    @ExceptionHandler(InsufficientLimitException.class)
+    public ExceptionHandlerResponse insufficientLimitExceptionHandler(InsufficientLimitException ex) {
         var map = new HashMap<String, List<String>>();
         map.put("message", List.of(Objects.requireNonNull(ex.getMessage())));
 

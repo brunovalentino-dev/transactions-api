@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping(value = "/accounts")
 @RequiredArgsConstructor
@@ -35,7 +37,11 @@ public class AccountController {
     public ResponseEntity<?> getAccount(@PathVariable Long accountId) {
         var account = accountService.findAccountById(accountId);
 
-        return ResponseEntity.ok(new AccountResponse(account.getAccountId(), account.getDocumentNumber()));
+        return ResponseEntity.ok(new AccountResponse(
+            account.getAccountId(),
+            account.getDocumentNumber(),
+            account.getAvailableCreditLimit()
+        ));
     }
 
     public record AccountRequest(
@@ -43,10 +49,13 @@ public class AccountController {
         @Size(min = 11, max = 11)
         @Pattern(regexp = "^\\d+$")
         @JsonProperty("document_number")
-        String documentNumber
+        String documentNumber,
+
+        @JsonProperty("available_credit_limit")
+        BigDecimal availableCreditLimit
     ) {
         public Account toEntity() {
-            return new Account(null, documentNumber);
+            return new Account(null, documentNumber, availableCreditLimit);
         }
     }
 
@@ -55,7 +64,10 @@ public class AccountController {
         Long accountId,
 
         @JsonProperty("document_number")
-        String documentNumber
+        String documentNumber,
+
+        @JsonProperty("available_credit_limit")
+        BigDecimal availableCreditLimit
     ) {}
 
 }
